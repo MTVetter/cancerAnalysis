@@ -13,6 +13,48 @@ def idwHelp():
 def censusHelp():
     tkMessageBox.showinfo("Census Units Help", "Information about the different Census units")
 
+def idw():
+    #Setting up the workspace
+    arcpy.env.workspace = "C:\\MAMP\\htdocs\\cancerAnalysis\\files\\well_nitrate"
+    arcpy.env.overwriteOutput = True
+    arcpy.CheckOutExtension("Spatial")
+    # status["text"] = "Running IDW..."
+
+    #Setting up the variables
+    inPoint = "well_nitrate.shp"
+    zField = "nitr_ran"
+    power = float(powerEntry.get())
+    print power
+    searchRadius = RadiusVariable(10, 150000)
+
+    #Run IDW
+    idwOutPut = Idw(inPoint, zField, "", power, searchRadius)
+
+    #Save the output raster
+    idwOutPut.save("C:\\MAMP\\htdocs\\cancerAnalysis\\project1\\idw.tif")
+
+    #Update the mxd to include the IDW raster
+    mxd = arcpy.mapping.MapDocument(r"C:\\MAMP\\htdocs\\cancerAnalysis\\idwMap.mxd")
+    dataFrame = arcpy.mapping.ListDataFrames(mxd, "Layers")[0]
+
+    #Change the symbology of the IDW raster
+    idwTiff = arcpy.mapping.Layer(r"C:\\MAMP\\htdocs\\cancerAnalysis\\project1\\idw.tif")
+    idwSymbology = r"C:\\MAMP\\htdocs\\cancerAnalysis\\project1\\idwSymbology.lyr"
+    arcpy.ApplySymbologyFromLayer_management(idwTiff, idwSymbology)
+
+    #Add newly changed IDW raster to the map
+    arcpy.mapping.AddLayer(dataFrame, idwTiff, "BOTTOM")
+
+    #Export the map
+    arcpy.mapping.ExportToPNG(mxd, "C:\\MAMP\\htdocs\\cancerAnalysis\\idwResults.png")
+    # status["text"] = "Completed IDW..."
+
+def displayIDW():
+    image2 = ImageTk.PhotoImage(file="C:\\MAMP\\htdocs\\cancerAnalysis\\idwResults.png")
+    mapDisplay.configure(image=image2)
+    mapDisplay.image = image2
+    Image.ANTIALIAS
+
 #Setting up the workspace
 env.workspace = "U:\School\Geog777\Project1\Workspace"
 
@@ -89,8 +131,8 @@ displaysTitle.insert(INSERT, "Choose a map display:")
 displaysTitle.pack(padx=5, pady=1)
 
 #Create the buttons to determine the map display
-idwDisplay = Button(displays, text="IDW")
-olsDisplay = Button(displays, text="Regression")
+idwDisplay = Button(displays, text="IDW", command=displayIDW)
+olsDisplay = Button(displays, text="Regression", command=idw)
 idwDisplay.pack()
 olsDisplay.pack(side=LEFT)
 
