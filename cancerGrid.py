@@ -18,7 +18,7 @@ def idw():
     arcpy.env.workspace = "C:\\MAMP\\htdocs\\cancerAnalysis\\files"
     arcpy.env.overwriteOutput = True
     arcpy.CheckOutExtension("Spatial")
-    status["text"] = "Running IDW..."
+    tkMessageBox.showinfo("Executing IDW", "Running IDW...")
 
     #Setting up the variables for the IDW tool
     inPoint = "well_nitrate.shp"
@@ -48,7 +48,7 @@ def idw():
     #Export the map
     arcpy.mapping.ExportToPNG(mxd, "C:\\MAMP\\htdocs\\cancerAnalysis\\idwResults.png")
     del mxd
-    status["text"] = "Completed IDW interpolation..."
+    tkMessageBox.showinfo("Completed IDW", "Completed IDW interpolation...")
 
     #Setting up the variables for the Zonal Statistics tool
     inZone = "cancer_tracts.shp"
@@ -76,7 +76,7 @@ def idw():
 
         #Create a copy of the joined layer
         arcpy.CopyFeatures_management(layerName, outputFeature)
-        status["text"] = "Completed Zonal Statistics..."
+        tkMessageBox.showinfo("Completed Zonal Statistics", "Completed Zonal Statistics...")
     except Exception, e:
         import traceback, sys
         tb = sys.exc_info()[2]
@@ -111,7 +111,7 @@ def idw():
 
     #Export the mxd
     arcpy.mapping.ExportToPNG(olsMXD, "C:\\MAMP\\htdocs\\cancerAnalysis\\olsResults.png")
-    status["text"] = "Completed OLS..."
+    tkMessageBox.showinfo("Completed OLS", "Completed Ordinary Least Squares...")
 
 def displayIDW():
     image2 = ImageTk.PhotoImage(file="C:\\MAMP\\htdocs\\cancerAnalysis\\idwResults.png")
@@ -162,6 +162,9 @@ def downloadMaps():
     #Export the mxd
     location2 = os.path.join(dirName, "olsResults.pdf")
     arcpy.mapping.ExportToPDF(olsMXD, location2)
+
+    #Message to say that the download is complete
+    tkMessageBox.showinfo("Download Complete", "The map download has completed. Navigate to the selected folder to see the results.")
 
 
 #Creating the GUI window
@@ -242,8 +245,5 @@ runButton.grid(row=5)
 downloadButton = Button(run, text="Download", command=downloadMaps)
 downloadButton.grid(row=6)
 
-#Create a status bar
-status = Label(root, text="Please click run", borderwidth=1, anchor=S, bg="white")
-status.grid(row=12, columnspan=25)
 
 root.mainloop()
