@@ -4,11 +4,15 @@ import arcpy
 from arcpy import env
 from arcpy.sa import *
 from PIL import Image, ImageTk
-import tkMessageBox, tkFileDialog
+import tkMessageBox, tkFileDialog, tkFont
 
 #Setting up the different functions that are needed for the application
 def idwHelp():
-    tkMessageBox.showinfo("Inverse Weighted Distance", "Information about Inverse Weighted Distance")
+    tkMessageBox.showinfo("Inverse Weighted Distance", "Inverse Weighted Distance (IDW) is the most widely used interpolation." +
+    "\n\nIDW uses the theory of close things are more related than distant things most explicitly." +
+    "\n\nIDW assigns weights quantitatively based on distance from a known point." +
+    "\n\nThe power you enter will determine how quickly locations are no longer considered close." +
+    "\n\nTypically the power value should be between 1.5 and 2.5")
 
 def censusHelp():
     tkMessageBox.showinfo("Census Units Help", "Information about the different Census units")
@@ -18,7 +22,6 @@ def idw():
     arcpy.env.workspace = "C:\\MAMP\\htdocs\\cancerAnalysis\\files"
     arcpy.env.overwriteOutput = True
     arcpy.CheckOutExtension("Spatial")
-    tkMessageBox.showinfo("Executing IDW", "Running IDW...")
 
     #Setting up the variables for the IDW tool
     inPoint = "well_nitrate.shp"
@@ -111,19 +114,25 @@ def idw():
 
     #Export the mxd
     arcpy.mapping.ExportToPNG(olsMXD, "C:\\MAMP\\htdocs\\cancerAnalysis\\olsResults.png")
-    tkMessageBox.showinfo("Completed OLS", "Completed Ordinary Least Squares...")
+    tkMessageBox.showinfo("Completed OLS", "Completed Ordinary Least Squares..." + "\n\nYou can now view and download the maps")
 
 def displayIDW():
-    image2 = ImageTk.PhotoImage(file="C:\\MAMP\\htdocs\\cancerAnalysis\\idwResults.png")
-    mapDisplay.configure(image=image2)
-    mapDisplay.image = image2
-    Image.ANTIALIAS
+    try:
+        image2 = ImageTk.PhotoImage(file="C:\\MAMP\\htdocs\\cancerAnalysis\\idwResults.png")
+        mapDisplay.configure(image=image2)
+        mapDisplay.image = image2
+        Image.ANTIALIAS
+    except:
+        tkMessageBox.showerror("Error!", "Press run in order to view the IDW map")
 
 def displayOLS():
-    image3 = ImageTk.PhotoImage(file="C:\\MAMP\\htdocs\\cancerAnalysis\\olsResults.png")
-    mapDisplay.configure(image=image3)
-    mapDisplay.image = image3
-    Image.ANTIALIAS
+    try:
+        image3 = ImageTk.PhotoImage(file="C:\\MAMP\\htdocs\\cancerAnalysis\\olsResults.png")
+        mapDisplay.configure(image=image3)
+        mapDisplay.image = image3
+        Image.ANTIALIAS
+    except:
+        tkMessageBox.showerror("Error!", "Press run in order to the regression map")
 
 def downloadMaps():
     #User enter the path for the downloaded maps
@@ -179,7 +188,7 @@ mapDisplay.grid(columnspan=4,padx=50)
 Image.ANTIALIAS
 
 # #Create a new frame
-execute = Frame(root, highlightbackground="gray", highlightcolor="gray", highlightthickness=.5, bg="gray")
+execute = Frame(root, highlightbackground="black", highlightcolor="black", highlightthickness=1, bg="gray")
 execute.grid(row=5, column=0, sticky=W, padx=50, pady=20)
 
 
@@ -187,14 +196,15 @@ execute.grid(row=5, column=0, sticky=W, padx=50, pady=20)
 executeTitle = Text(execute, width=20, height=1, wrap=WORD)
 executeTitle.insert(INSERT, "Execute Analysis")
 executeTitle.config(state=DISABLED)
+executeTitle.configure(font=("Franklin Gothic", "11"))
 executeTitle.grid(row=6, column=0, sticky=W)
 
 # #Instructions for the user
-executeLabel = Label(execute, text="Enter a Power Value:")
+executeLabel = Label(execute, text="Enter a Power Value:", font=("Baskerville Old Face", "10"))
 executeLabel.grid(row=7, column=0)
 
 # #Create the power entry box
-powerEntry = Entry(execute, bg="red")
+powerEntry = Entry(execute, bg="white")
 powerEntry.grid(row=8, columnspan=2)
 
 # #Create the buttons to either run the analysis or get help about the analysis
@@ -202,18 +212,19 @@ executeHelp = Button(execute, text="Help", command=idwHelp)
 executeHelp.grid(row=9)
 
 # #Create a new frame for the spatial unit
-units = Frame(root, highlightbackground="gray", highlightcolor="gray", highlightthickness=.5, bg="gray")
+units = Frame(root, highlightbackground="black", highlightcolor="black", highlightthickness=1, bg="gray")
 units.grid(row=5, column=1, sticky=W, padx=50, pady=20)
 
 # #Title for the spatial units frame
 unitsTitle = Text(units, width=25, height=1, wrap=WORD)
 unitsTitle.insert(INSERT, "Choose a Spatial Unit:")
 unitsTitle.config(state=DISABLED)
+unitsTitle.configure(font=("Gill Sans", "11"))
 unitsTitle.grid(row=6, column=1)
 
 # #Create the radiobuttons
 var = IntVar()
-tracts = Radiobutton(units, text="Census Tracts", variable=var, value=1)
+tracts = Radiobutton(units, text="Census Tracts", font=("Garamond", "10"), variable=var, value=1)
 blocks = Radiobutton(units, text="Census Block", variable=var, value=2, width=10)
 unitsHelp = Button(units, text="Help", command=censusHelp)
 tracts.grid(row=7, column=1)
@@ -222,7 +233,7 @@ unitsHelp.grid(row=9, columnspan=3)
 
 
 # #Create a new frame for the different map displays
-displays = Frame(root, highlightbackground="gray", highlightcolor="gray", highlightthickness=.5, bg="gray")
+displays = Frame(root, highlightbackground="black", highlightcolor="black", highlightthickness=1, bg="gray")
 displays.grid(row=5, column=2, padx=50, pady=20)
 
 # #Title for the map displays
