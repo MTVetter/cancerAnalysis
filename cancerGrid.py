@@ -60,6 +60,7 @@ def idw():
     dataFrame2 = arcpy.mapping.ListDataFrames(mxd2, "Layers")[0]
     arcpy.mapping.AddLayer(dataFrame2, idwTiff, "BOTTOM")
     arcpy.mapping.ExportToPNG(mxd2, "C:\\MAMP\\htdocs\\cancerAnalysis\\countyIDWResults.png")
+    idwDisplay.config(state=NORMAL)
     tkMessageBox.showinfo("Completed IDW", "Completed IDW interpolation...")
 
     #Setting up the process for the two different spatial units
@@ -129,6 +130,8 @@ def idw():
         #Export the mxd
         arcpy.mapping.ExportToPNG(olsMXD, "C:\\MAMP\\htdocs\\cancerAnalysis\\olsResults.png")
         tkMessageBox.showinfo("Completed OLS", "Completed Ordinary Least Squares..." + "\n\nYou can now view and download the maps")
+        olsDisplay.config(state=NORMAL)
+        downloadButton.config(state=NORMAL)
         image3 = ImageTk.PhotoImage(file="C:\\MAMP\\htdocs\\cancerAnalysis\\olsResults.png")
         mapDisplay.configure(image=image3)
         mapDisplay.image = image3
@@ -198,6 +201,8 @@ def idw():
 
         #Export the mxd
         arcpy.mapping.ExportToPNG(olsMXD, "C:\\MAMP\\htdocs\\cancerAnalysis\\countyOLSResults.png")
+        olsDisplay.config(state=NORMAL)
+        downloadButton.config(state=NORMAL)
         tkMessageBox.showinfo("Completed OLS", "Completed Ordinary Least Squares..." + "\n\nYou can now view and download the maps")
         image3 = ImageTk.PhotoImage(file="C:\\MAMP\\htdocs\\cancerAnalysis\\countyOLSResults.png")
         mapDisplay.configure(image=image3)
@@ -207,41 +212,28 @@ def idw():
 def displayIDW():
     selection = unitVar.get()
     if selection == 1:
-        try:
-            image2 = ImageTk.PhotoImage(file="C:\\MAMP\\htdocs\\cancerAnalysis\\idwResults.png")
-            mapDisplay.configure(image=image2)
-            mapDisplay.image = image2
-            Image.ANTIALIAS
-        except:
-            tkMessageBox.showerror("Error!", "Please enter a power value then click run in order to view the IDW map")
+        image2 = ImageTk.PhotoImage(file="C:\\MAMP\\htdocs\\cancerAnalysis\\idwResults.png")
+        mapDisplay.configure(image=image2)
+        mapDisplay.image = image2
+        Image.ANTIALIAS
     else:
-        try:
-            image2 = ImageTk.PhotoImage(file="C:\\MAMP\\htdocs\\cancerAnalysis\\countryIDWResults.png")
-            mapDisplay.configure(image=image2)
-            mapDisplay.image = image2
-            Image.ANTIALIAS
-        except:
-            tkMessageBox.showerror("Error!", "Please enter a power value then click run in order to view the IDW map")
-
+        image2 = ImageTk.PhotoImage(file="C:\\MAMP\\htdocs\\cancerAnalysis\\countyIDWResults.png")
+        mapDisplay.configure(image=image2)
+        mapDisplay.image = image2
+        Image.ANTIALIAS
 
 def displayOLS():
     selection = unitVar.get()
     if selection == 1:
-        try:
-            image4 = ImageTk.PhotoImage(file="C:\\MAMP\\htdocs\\cancerAnalysis\\olsResults.png")
-            mapDisplay.configure(image=image4)
-            mapDisplay.image = image4
-            Image.ANTIALIAS
-        except:
-            tkMessageBox.showerror("Error!", "Please enter a power value then click run in order to view the regression map")
+        image4 = ImageTk.PhotoImage(file="C:\\MAMP\\htdocs\\cancerAnalysis\\olsResults.png")
+        mapDisplay.configure(image=image4)
+        mapDisplay.image = image4
+        Image.ANTIALIAS
     else:
-        try:
-            image4 = ImageTk.PhotoImage(file="C:\\MAMP\\htdocs\\cancerAnalysis\\countryOLSResults.png")
-            mapDisplay.configure(image=image4)
-            mapDisplay.image = image4
-            Image.ANTIALIAS
-        except:
-            tkMessageBox.showerror("Error!", "Please enter a power value then click run in order to view the regression map")
+        image4 = ImageTk.PhotoImage(file="C:\\MAMP\\htdocs\\cancerAnalysis\\countryOLSResults.png")
+        mapDisplay.configure(image=image4)
+        mapDisplay.image = image4
+        Image.ANTIALIAS
 
 def downloadMaps():
     #User enter the path for the downloaded maps
@@ -357,6 +349,8 @@ displaysTitle.grid(row=6, column=2)
 # #Create the buttons to determine the map display
 idwDisplay = Button(displays, text="IDW", command=displayIDW)
 olsDisplay = Button(displays, text="Regression", command=displayOLS)
+idwDisplay.config(state=DISABLED)
+olsDisplay.config(state=DISABLED)
 idwDisplay.grid(row=7, columnspan=3)
 olsDisplay.grid(row=8, columnspan=3)
 
@@ -366,6 +360,7 @@ run.grid(row=5, column=3)
 runButton = Button(run, text="Run", command=idw)
 runButton.grid(row=5)
 downloadButton = Button(run, text="Download", command=downloadMaps)
+downloadButton.config(state=DISABLED)
 downloadButton.grid(row=6)
 
 
