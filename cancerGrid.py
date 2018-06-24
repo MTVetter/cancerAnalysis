@@ -15,7 +15,9 @@ def idwHelp():
     "\n\nTypically the power value should be between 1.5 and 2.5")
 
 def censusHelp():
-    tkMessageBox.showinfo("Census Units Help", "Information about the different Census units")
+    tkMessageBox.showinfo("Census Units Help", "Census tracts are small relatively permanent statistical subdivisions of a county." +
+    "\n\nCensus tracts generally have a population size between 1,200 and 8,000 with the optimum population size of 4,000." +
+    "\n\nCensus tracts are delineated with the intention of being maintained over a long time and the boundaries usually follow visible and identifiable features.")
 
 def idw():
     #Determine which spatial unit the user chose
@@ -113,6 +115,9 @@ def idw():
         except:
             print (arcpy.GetMessages())
 
+        moransI = arcpy.SpatialAutocorrelation_stats("C:\\MAMP\\htdocs\\cancerAnalysis\\files\\Result_Testing.gdb\\olsResults",
+        "Residual", "NO_REPORT", "INVERSE_DISTANCE", "EUCLIDEAN_DISTANCE", "NONE", "", "")
+
         #Get the mxd
         olsMXD = arcpy.mapping.MapDocument("C:\\MAMP\\htdocs\\cancerAnalysis\\OLSmap.mxd")
         olsDF = arcpy.mapping.ListDataFrames(olsMXD, "Layers")[0]
@@ -185,6 +190,9 @@ def idw():
         except:
             print (arcpy.GetMessages())
 
+        moransII = arcpy.SpatialAutocorrelation_stats("C:\\MAMP\\htdocs\\cancerAnalysis\\files\\Result_Testing.gdb\\countyOLSResults",
+        "Residual", "NO_REPORT", "INVERSE_DISTANCE", "EUCLIDEAN_DISTANCE", "NONE", "", "")
+
         #Get the mxd
         olsMXD = arcpy.mapping.MapDocument("C:\\MAMP\\htdocs\\cancerAnalysis\\OLSmap.mxd")
         olsDF = arcpy.mapping.ListDataFrames(olsMXD, "Layers")[0]
@@ -230,51 +238,90 @@ def displayOLS():
         mapDisplay.image = image4
         Image.ANTIALIAS
     else:
-        image4 = ImageTk.PhotoImage(file="C:\\MAMP\\htdocs\\cancerAnalysis\\countryOLSResults.png")
+        image4 = ImageTk.PhotoImage(file="C:\\MAMP\\htdocs\\cancerAnalysis\\countyOLSResults.png")
         mapDisplay.configure(image=image4)
         mapDisplay.image = image4
         Image.ANTIALIAS
 
 def downloadMaps():
+    selection = unitVar.get()
     #User enter the path for the downloaded maps
     dirName = tkFileDialog.askdirectory(parent=root, initialdir="/")
 
-    #Get the two mxds
-    mxd = arcpy.mapping.MapDocument(r"C:\\MAMP\\htdocs\\cancerAnalysis\\idwMap.mxd")
-    dataFrame = arcpy.mapping.ListDataFrames(mxd, "Layers")[0]
+    if selection == 1:
+        #Get the two mxds
+        mxd = arcpy.mapping.MapDocument(r"C:\\MAMP\\htdocs\\cancerAnalysis\\idwMap.mxd")
+        dataFrame = arcpy.mapping.ListDataFrames(mxd, "Layers")[0]
 
-    #Change the symbology of the IDW raster
-    idwTiff = arcpy.mapping.Layer(r"C:\\MAMP\\htdocs\\cancerAnalysis\\project1\\idw.tif")
-    idwSymbology = r"C:\\MAMP\\htdocs\\cancerAnalysis\\project1\\idwSymbology.lyr"
-    arcpy.ApplySymbologyFromLayer_management(idwTiff, idwSymbology)
+        #Change the symbology of the IDW raster
+        idwTiff = arcpy.mapping.Layer(r"C:\\MAMP\\htdocs\\cancerAnalysis\\project1\\idw.tif")
+        idwSymbology = r"C:\\MAMP\\htdocs\\cancerAnalysis\\project1\\idwSymbology.lyr"
+        arcpy.ApplySymbologyFromLayer_management(idwTiff, idwSymbology)
 
-    #Add newly changed IDW raster to the map
-    arcpy.mapping.AddLayer(dataFrame, idwTiff, "BOTTOM")
+        #Add newly changed IDW raster to the map
+        arcpy.mapping.AddLayer(dataFrame, idwTiff, "BOTTOM")
 
-    #Export the map
-    location = os.path.join(dirName, "idwResults.pdf")
-    arcpy.mapping.ExportToPDF(mxd, location)
+        #Export the map
+        location = os.path.join(dirName, "idwResults.pdf")
+        arcpy.mapping.ExportToPDF(mxd, location)
 
-    #Get the OLS mxd
-    olsMXD = arcpy.mapping.MapDocument("C:\\MAMP\\htdocs\\cancerAnalysis\\OLSmap.mxd")
-    olsDF = arcpy.mapping.ListDataFrames(olsMXD, "Layers")[0]
+        #Get the OLS mxd
+        olsMXD = arcpy.mapping.MapDocument("C:\\MAMP\\htdocs\\cancerAnalysis\\OLSmap.mxd")
+        olsDF = arcpy.mapping.ListDataFrames(olsMXD, "Layers")[0]
 
-    #Add the OLS output to an mxd and apply symbology
-    olsResults = arcpy.mapping.Layer(r"C:\\MAMP\\htdocs\\cancerAnalysis\\files\\Result_Testing.gdb\\olsResults")
-    olsSymbology = r"C:\\MAMP\\htdocs\\cancerAnalysis\\project1\\olsSymbology.lyr"
-    arcpy.ApplySymbologyFromLayer_management(olsResults, olsSymbology)
-    arcpy.mapping.AddLayer(olsDF, olsResults, "AUTO_ARRANGE")
+        #Add the OLS output to an mxd and apply symbology
+        olsResults = arcpy.mapping.Layer(r"C:\\MAMP\\htdocs\\cancerAnalysis\\files\\Result_Testing.gdb\\olsResults")
+        olsSymbology = r"C:\\MAMP\\htdocs\\cancerAnalysis\\project1\\olsSymbology.lyr"
+        arcpy.ApplySymbologyFromLayer_management(olsResults, olsSymbology)
+        arcpy.mapping.AddLayer(olsDF, olsResults, "AUTO_ARRANGE")
 
-    #Add the legend to the map
-    olsLegend = arcpy.mapping.ListLayoutElements(olsMXD, "LEGEND_ELEMENT", "Legend")[0]
-    olsLegend.autoAdd = True
+        #Add the legend to the map
+        olsLegend = arcpy.mapping.ListLayoutElements(olsMXD, "LEGEND_ELEMENT", "Legend")[0]
+        olsLegend.autoAdd = True
 
-    #Export the mxd
-    location2 = os.path.join(dirName, "olsResults.pdf")
-    arcpy.mapping.ExportToPDF(olsMXD, location2)
+        #Export the mxd
+        location2 = os.path.join(dirName, "olsResults.pdf")
+        arcpy.mapping.ExportToPDF(olsMXD, location2)
 
-    #Message to say that the download is complete
-    tkMessageBox.showinfo("Download Complete", "The map download has completed. Navigate to the selected folder to see the results.")
+        #Message to say that the download is complete
+        tkMessageBox.showinfo("Download Complete", "The map download has completed. Navigate to the selected folder to see the results.")
+    else:
+        #Get the two mxds
+        mxd = arcpy.mapping.MapDocument(r"C:\\MAMP\\htdocs\\cancerAnalysis\\countyIDWMap.mxd")
+        dataFrame = arcpy.mapping.ListDataFrames(mxd, "Layers")[0]
+
+        #Change the symbology of the IDW raster
+        idwTiff = arcpy.mapping.Layer(r"C:\\MAMP\\htdocs\\cancerAnalysis\\project1\\idw.tif")
+        idwSymbology = r"C:\\MAMP\\htdocs\\cancerAnalysis\\project1\\idwSymbology.lyr"
+        arcpy.ApplySymbologyFromLayer_management(idwTiff, idwSymbology)
+
+        #Add newly changed IDW raster to the map
+        arcpy.mapping.AddLayer(dataFrame, idwTiff, "BOTTOM")
+
+        #Export the map
+        location = os.path.join(dirName, "countyIDWResults.pdf")
+        arcpy.mapping.ExportToPDF(mxd, location)
+
+        #Get the OLS mxd
+        olsMXD = arcpy.mapping.MapDocument("C:\\MAMP\\htdocs\\cancerAnalysis\\OLSmap.mxd")
+        olsDF = arcpy.mapping.ListDataFrames(olsMXD, "Layers")[0]
+
+        #Add the OLS output to an mxd and apply symbology
+        olsResults = arcpy.mapping.Layer(r"C:\\MAMP\\htdocs\\cancerAnalysis\\files\\Result_Testing.gdb\\countyOLSResults")
+        olsSymbology = r"C:\\MAMP\\htdocs\\cancerAnalysis\\project1\\olsSymbology.lyr"
+        arcpy.ApplySymbologyFromLayer_management(olsResults, olsSymbology)
+        arcpy.mapping.AddLayer(olsDF, olsResults, "AUTO_ARRANGE")
+
+        #Add the legend to the map
+        olsLegend = arcpy.mapping.ListLayoutElements(olsMXD, "LEGEND_ELEMENT", "Legend")[0]
+        olsLegend.autoAdd = True
+
+        #Export the mxd
+        location2 = os.path.join(dirName, "countyOLSResults.pdf")
+        arcpy.mapping.ExportToPDF(olsMXD, location2)
+
+        #Message to say that the download is complete
+        tkMessageBox.showinfo("Download Complete", "The map download has completed. Navigate to the selected folder to see the results.")
 
 
 #Creating the GUI window
@@ -327,8 +374,8 @@ unitsTitle.grid(row=6, column=1)
 # #Create the radiobuttons
 unitVar = IntVar()
 unitVar.set(1)
-tracts = Radiobutton(units, text="Census Tracts", font=("Garamond", "10"), variable=unitVar, value=1)
-blocks = Radiobutton(units, text="Counties", variable=unitVar, value=2, width=10)
+tracts = Radiobutton(units, text="Census Tracts", font=("Baskerville Old Face", "10"), variable=unitVar, value=1)
+blocks = Radiobutton(units, text="Counties", font=("Baskerville Old Face", "11"), variable=unitVar, value=2, width=10)
 unitsHelp = Button(units, text="Help", command=censusHelp)
 tracts.grid(row=7, column=1)
 blocks.grid(row=8, column=1)
